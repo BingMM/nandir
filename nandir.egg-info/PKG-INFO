@@ -1,0 +1,97 @@
+Metadata-Version: 2.4
+Name: nandir
+Version: 0.1.0
+Summary: Small utilities for linear inverse problems.
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: numpy>=1.23
+Requires-Dist: scipy>=1.10
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Provides-Extra: examples
+Requires-Dist: matplotlib>=3.8; extra == "examples"
+Requires-Dist: pooch>=1.8; extra == "examples"
+Requires-Dist: secsy; extra == "examples"
+
+# nandir
+
+`nandir` is a small Python package for linear inverse problems built around
+normal equations. It exposes:
+
+- `Solver` for low-level direct solves
+- `LinearInverseProblem` for repeated solves, IRLS, and regularization sweeps
+- `QuadraticRegularization` for Tikhonov-style regularization terms
+
+## Install
+
+```bash
+pip install -e .
+```
+
+## Example
+
+```python
+import numpy as np
+
+from nandir import LinearInverseProblem, QuadraticRegularization
+
+G = np.array([[1.0, 0.0], [1.0, 1.0], [0.0, 1.0]])
+d = np.array([1.0, 2.0, 1.0])
+w = np.array([1.0, 2.0, 1.0])
+reg = QuadraticRegularization(np.eye(2), lreg=0.1)
+
+problem = LinearInverseProblem(G, d)
+result = problem.solve(w=w, reg=reg)
+m = result.model
+```
+
+`w` may be either:
+
+- a 1D array interpreted as the diagonal of a weighting matrix
+- a dense 2D weighting matrix
+- a sparse 2D weighting matrix
+
+Passing `GTG` and `GTd` directly is also supported when you already have the
+normal equations.
+
+`G`, `GTG`, and `LTL` may also be SciPy sparse matrices.
+
+For posterior work on sparse systems, `Solver` also exposes:
+
+- `posterior_covariance_columns(indices)` for selected posterior columns
+- `posterior_covariance_diagonal()` for exact posterior variances
+- `posterior_covariance_sparse(drop_tol=...)` for a thresholded sparse approximation
+
+## Repeated Solves
+
+```python
+import numpy as np
+
+from nandir import LinearInverseProblem
+
+problem = LinearInverseProblem(G, d)
+
+results = problem.regularization_path(
+    lambdas=np.logspace(-3, 1, 10),
+    LTL=np.eye(G.shape[1]),
+)
+
+irls = problem.huber_irls(delta=1.5, max_iterations=10)
+robust_model = irls.solution
+```
+
+## Examples
+
+The SECS example scripts use the same raccoon image as the original `secsy`
+example. Install the example dependencies first:
+
+```bash
+pip install -e ".[examples]"
+```
+
+Then generate the reusable synthetic dataset and make the validation figures:
+
+```bash
+python scripts/generate_synth_data.py
+python scripts/examples.py
+```

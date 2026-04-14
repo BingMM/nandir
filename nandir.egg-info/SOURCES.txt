@@ -1,0 +1,11 @@
+README.md
+pyproject.toml
+nandir/__init__.py
+nandir/problem.py
+nandir/solver.py
+nandir.egg-info/PKG-INFO
+nandir.egg-info/SOURCES.txt
+nandir.egg-info/dependency_links.txt
+nandir.egg-info/requires.txt
+nandir.egg-info/top_level.txt
+tests/test_solver.py

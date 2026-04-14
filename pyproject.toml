@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nandir"
+version = "0.1.0"
+description = "Small utilities for linear inverse problems."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.23",
+    "scipy>=1.10",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+examples = [
+    "matplotlib>=3.8",
+    "pooch>=1.8",
+    "secsy",
+]
+
+[tool.setuptools.packages.find]
+include = ["nandir*"]
+exclude = ["data*", "figures*", "scripts*", "tests*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
